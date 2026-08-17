@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { logout } from '../login/actions'
+import { logout } from '@/app/login/actions'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
