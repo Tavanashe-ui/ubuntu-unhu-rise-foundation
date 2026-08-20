@@ -6,6 +6,13 @@ import { createBeneficiary, type FormState } from '../actions'
 
 type Province = { id: number; name: string }
 type District = { id: number; province_id: number; district: string }
+type Household = {
+  id: string
+  ref: string
+  head_name: string
+  community: string | null
+  child_count: number
+}
 
 const field =
   'mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-stone-900 outline-none focus:border-stone-900'
@@ -14,9 +21,11 @@ const label = 'block text-sm font-medium text-stone-700'
 export default function BeneficiaryForm({
   provinces,
   districts,
+  households,
 }: {
   provinces: Province[]
   districts: District[]
+  households: Household[]
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
     createBeneficiary,
@@ -33,7 +42,7 @@ export default function BeneficiaryForm({
   )
 
   return (
-    <main className="mx-auto max-w-2xl p-6 pb-20">
+    <main className="p-6 pb-20">
       <Link href="/beneficiaries" className="text-sm text-stone-500 underline">
         Beneficiaries
       </Link>
@@ -67,7 +76,7 @@ export default function BeneficiaryForm({
         </div>
       )}
 
-      <form action={formAction} className="mt-6 space-y-6">
+      <form action={formAction} className="mt-6 max-w-2xl space-y-6">
         <fieldset className="space-y-4">
           <legend className="text-sm font-semibold uppercase tracking-wide text-stone-500">
             Identity
@@ -87,9 +96,7 @@ export default function BeneficiaryForm({
           </div>
 
           <div>
-            <label htmlFor="preferred_name" className={label}>
-              Preferred name
-            </label>
+            <label htmlFor="preferred_name" className={label}>Preferred name</label>
             <input id="preferred_name" name="preferred_name" defaultValue={v.preferred_name} className={field} />
             <p className="mt-1 text-xs text-stone-500">
               What the child is actually called. Use this in conversation.
@@ -137,6 +144,33 @@ export default function BeneficiaryForm({
                 className={field}
               />
             )}
+          </div>
+        </fieldset>
+
+        <fieldset className="space-y-4">
+          <legend className="text-sm font-semibold uppercase tracking-wide text-stone-500">
+            Household
+          </legend>
+          <div>
+            <label htmlFor="household_id" className={label}>Family</label>
+            <select id="household_id" name="household_id" defaultValue={v.household_id ?? ''} className={field}>
+              <option value="">Not linked yet</option>
+              {households.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {h.head_name} — {h.ref}
+                  {h.community ? ` (${h.community})` : ''}
+                  {h.child_count > 0
+                    ? ` · ${h.child_count} child${h.child_count > 1 ? 'ren' : ''}`
+                    : ''}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-stone-500">
+              Linking siblings to one household is what lets the Foundation see the
+              whole family&apos;s circumstances rather than isolated children.{' '}
+              <Link href="/households/new" className="underline">Add a household</Link>{' '}
+              if this family is not listed.
+            </p>
           </div>
         </fieldset>
 
@@ -215,7 +249,7 @@ export default function BeneficiaryForm({
           <p className="text-xs text-stone-600">
             Zimbabwe&apos;s Data Protection Act requires a lawful basis for holding a
             child&apos;s information. Register the child now if consent is still being
-            obtained, but the record cannot become active until it is on file.
+            obtained — the record simply cannot become active until it is on file.
           </p>
           <label className="flex items-center gap-2 text-sm text-stone-700">
             <input

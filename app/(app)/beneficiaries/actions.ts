@@ -82,6 +82,7 @@ export async function createBeneficiary(
       gender,
       has_disability: formData.get('has_disability') === 'on',
       disability_notes: str(formData, 'disability_notes') || null,
+      household_id: str(formData, 'household_id') || null,
       school_name: str(formData, 'school_name') || null,
       grade: str(formData, 'grade') || null,
       province_id: province_id ? Number(province_id) : null,
@@ -105,5 +106,6 @@ export async function createBeneficiary(
   }
 
   revalidatePath('/beneficiaries')
+  revalidatePath('/households')
   redirect(`/beneficiaries?created=${data.ref}`)
 }
